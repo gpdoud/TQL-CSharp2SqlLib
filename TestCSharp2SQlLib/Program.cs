@@ -6,14 +6,38 @@ namespace TestCSharp2SQlLib {
     class Program {
         static void Main(string[] args) {
 
-            var sqllib = new SqlLib();
-            sqllib.Connect();
+            var sqlconn = new Connection("localhost\\sqlexpress", "PrsDb");
 
-            var users = sqllib.GetAllUsers();
-            var user = sqllib.GetByPK(1);
-            var nulluser = sqllib.GetByPK(0);
+            var vendorsController = new VendorsController(sqlconn);
+            var vendors = vendorsController.GetAll();
 
-            sqllib.Disconnect();
+            var productsController = new ProductsController(sqlconn);
+            var products = productsController.GetAll();
+            var product = productsController.GetByPK(1);
+            Console.WriteLine(product);
+
+            sqlconn.Disconnect();
+
+            #region Commented Out Code
+            //var sqllib = new SqlLib();
+            //sqllib.Connect();
+
+            //var user = sqllib.GetByPK(7);
+            //user.Phone = "513-555-1212";
+            //var success = sqllib.Change(user);
+
+
+            //var newUser = new User() {
+            //    Id = 0, Username = "XYZ1", Password = "XYZ", Firstname = "XYZ", Lastname = "XYZ",
+            //    Phone = "XYZ", Email = "XYZ", IsReviewer = true, IsAdmin = true
+            //};
+            ////var success = sqllib.Create(newUser);
+
+            //var users = sqllib.GetAllUsers();
+            //var nulluser = sqllib.GetByPK(0);
+
+            //sqllib.Disconnect();
+            #endregion
         }
     }
 }
