@@ -2,19 +2,39 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Xml.Linq;
 
 namespace CSharp2SqlLib {
     
     public class ProductsController {
 
         private static Connection connection { get; set; }
-
+        /// <summary>
+        /// Creates a new product and selects the vendor by code
+        /// </summary>
+        /// <param name="product">A Product instance</param>
+        /// <param name="VendorCode">A vendor code</param>
+        /// <returns>True if successful otherwise false</returns>
         public bool Create(Product product, string VendorCode) {
             var vendCtrl = new VendorsController(connection);
             var vendor = vendCtrl.GetByCode(VendorCode);
             product.VendorId = vendor.Id;
             return Create(product);
+        }
+
+        private Product FillProductFromSqlRow(SqlDataReader reader) {
+            var product = new Product() {
+                Id = Convert.ToInt32(reader["Id"]),
+                PartNbr = Convert.ToString(reader["PartNbr"]),
+                Name = Convert.ToString(reader["Name"]),
+                Price = Convert.ToDecimal(reader["Price"]),
+                Unit = Convert.ToString(reader["Unit"]),
+                PhotoPath = Convert.ToString(reader["PhotoPath"]),
+                VendorId = Convert.ToInt32(reader["VendorId"])
+            };
+            return product;
         }
 
         public List<Product> GetAll() {
@@ -23,15 +43,7 @@ namespace CSharp2SqlLib {
             var reader = cmd.ExecuteReader();
             var products = new List<Product>();
             while(reader.Read()) {
-                var product = new Product() {
-                    Id = Convert.ToInt32(reader["Id"]),
-                    PartNbr = Convert.ToString(reader["PartNbr"]),
-                    Name = Convert.ToString(reader["Name"]),
-                    Price = Convert.ToDecimal(reader["Price"]),
-                    Unit = Convert.ToString(reader["Unit"]),
-                    PhotoPath = Convert.ToString(reader["PhotoPath"]),
-                    VendorId = Convert.ToInt32(reader["VendorId"])
-                };
+                var product = FillProductFromSqlRow(reader);  
                 products.Add(product);
             }
             reader.Close();
@@ -44,15 +56,7 @@ namespace CSharp2SqlLib {
             cmd.Parameters.AddWithValue("@id", id);
             var reader = cmd.ExecuteReader();
             reader.Read();
-            var product = new Product() {
-                Id = Convert.ToInt32(reader["Id"]),
-                PartNbr = Convert.ToString(reader["PartNbr"]),
-                Name = Convert.ToString(reader["Name"]),
-                Price = Convert.ToDecimal(reader["Price"]),
-                Unit = Convert.ToString(reader["Unit"]),
-                PhotoPath = Convert.ToString(reader["PhotoPath"]),
-                VendorId = Convert.ToInt32(reader["VendorId"])
-            };
+            var product = FillProductFromSqlRow(reader);
             reader.Close();
             GetVendorForProduct(product);
             return product;
