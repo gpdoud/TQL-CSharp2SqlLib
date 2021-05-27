@@ -7,11 +7,16 @@ namespace TestCSharp2SQlLib {
         static void Main(string[] args) {
 
             var sqlconn = new Connection("localhost\\sqlexpress", "PrsDb");
+            var newProduct = new Product() {
+                Id = 0, PartNbr = "SKYLINE", Name = "Skyline Chili", Price = 5,
+                Unit = "Each", PhotoPath = null, VendorId = 0
+            };
+            var productsController = new ProductsController(sqlconn);
+            var success = productsController.Create(newProduct, "KROG");
 
             var vendorsController = new VendorsController(sqlconn);
             var vendors = vendorsController.GetAll();
 
-            var productsController = new ProductsController(sqlconn);
             var products = productsController.GetAll();
             var product = productsController.GetByPK(1);
             Console.WriteLine(product);

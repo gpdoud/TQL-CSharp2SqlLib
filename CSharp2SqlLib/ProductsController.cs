@@ -10,6 +10,13 @@ namespace CSharp2SqlLib {
 
         private static Connection connection { get; set; }
 
+        public bool Create(Product product, string VendorCode) {
+            var vendCtrl = new VendorsController(connection);
+            var vendor = vendCtrl.GetByCode(VendorCode);
+            product.VendorId = vendor.Id;
+            return Create(product);
+        }
+
         public List<Product> GetAll() {
             var sql = "SELECT * from Products;";
             var cmd = new SqlCommand(sql, connection.SqlConn);
@@ -60,7 +67,7 @@ namespace CSharp2SqlLib {
             cmd.Parameters.AddWithValue("@name", product.Name);
             cmd.Parameters.AddWithValue("@price", product.Price);
             cmd.Parameters.AddWithValue("@unit", product.Unit);
-            cmd.Parameters.AddWithValue("@photopath", product.PhotoPath);
+            cmd.Parameters.AddWithValue("@photopath", (object)product.PhotoPath ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@vendorid", product.VendorId);
             var rowsAffected = cmd.ExecuteNonQuery();
             return (rowsAffected == 1);
